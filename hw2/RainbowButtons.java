@@ -5,6 +5,8 @@ import java.util.Random;
 
 public class RainbowButtons {
 
+    static RainbowButtons rb;
+    
     // ROW * COL = total number of buttons
     // - adjust these values for diff. number of buttons
     static final int ROW = 4;
@@ -71,7 +73,7 @@ public class RainbowButtons {
     }
 
     public static void main(String[] args) {
-        RainbowButtons rb = new RainbowButtons();   
+        rb = new RainbowButtons();   
     }
     
 }
