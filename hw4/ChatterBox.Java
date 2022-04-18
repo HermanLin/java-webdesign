@@ -1,59 +1,140 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.regex.*;
 
 public class ChatterBox {
 
     static ChatterBox cb;
-    JTextArea textArea;
-    JTextField textField;
+    JTextArea textChat, textInput;
     JButton sendButton;
+    String serverAddr, username;
+    Client connection;
+
+    static final String IP_ADDRESS = 
+        "[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}";
 
     ChatterBox() {
         // default settings for the window
         JFrame jf = new JFrame("ChatterBox");
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //jf.setSize(500, 600);
         jf.setResizable(false);
+        jf.setVisible(true);
 
-        // create the components for the ChatterBox
-        textArea = new JTextArea(30, 30);
-        textArea.setEditable(false);
-        JScrollPane sp = new JScrollPane(textArea);
+        serverPrompt(jf);
+    }
 
-        textField = new JTextField(30);
+    /*
+        Prompt user for which server to connect to and a username
+    */
+    private void serverPrompt (JFrame jf) {
+        // create components 
+        JTextField addrInput = new JTextField(20);
+        JTextField nameInput = new JTextField(20);
 
-        sendButton = new JButton("Send");
-        sendButton.addActionListener(new ActionListener() {
+        JButton submit = new JButton("Login");
+        submit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String text = textField.getText();
-                textArea.append(text + "\n");
-                textField.setText("");
+                serverAddr = addrInput.getText().strip();
+                username = nameInput.getText().strip();
+
+                if (Pattern.matches(IP_ADDRESS, serverAddr)) {
+                    startChatterBox(jf);
+                } else {
+                    JOptionPane.showMessageDialog(
+                        null,
+                        "Please use a valid server address",
+                        "ChatterBox Error",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         });
 
         // create dynamic grid of cells which allows for
         // components to occupy one or more cells
-        GridBagLayout gridbag = new GridBagLayout();
+        JPanel prompt = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        JPanel jp = new JPanel(gridbag);
+        c.fill = GridBagConstraints.BOTH;
 
         // add components to the panel
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1.0;
-        c.weighty = 1.0;
-        jp.add(sp, c);
+        //c.weightx = 1.0;
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        prompt.add(new Label("Server Address"), c);
 
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0.0;
-        c.weighty = 0.0;
-        jp.add(textField, c);
-    
+        //c.weightx = 0.0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        prompt.add(addrInput, c);
+
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        prompt.add(new Label("Username"), c);
+        
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        prompt.add(nameInput, c);
+
+        c.gridwidth = GridBagConstraints.HORIZONTAL;
+        prompt.add(submit, c);
+
         // add panel to the window frame
-        jf.add(jp);
+        jf.add(prompt);
         jf.pack();
-        jf.setVisible(true);
+    }
+
+    /*
+        Initialize the Client object and start
+        the ChatterBox program
+    */
+    private void startChatterBox(JFrame jf) {
+        
+        
+        chatWindow(jf);
+    }
+
+    /*
+        Create the ChatterBox interface for user IO
+    */
+    private void chatWindow(JFrame jf) {
+        // create the components for the ChatterBox
+        textChat = new JTextArea(30, 30);
+        textChat.setEditable(false);
+        textChat.setLineWrap(true);
+        JScrollPane chatSP = new JScrollPane(textChat);
+
+        textInput = new JTextArea(3, 30);
+        textInput.setLineWrap(true);
+        JScrollPane inputSP = new JScrollPane(textInput);
+
+        sendButton = new JButton("Send");
+        sendButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String text = textInput.getText();
+                textChat.append(username + ": " + text + "\n");
+                textInput.setText("");
+            }
+        });
+
+        // create dynamic grid of cells which allows for
+        // components to occupy one or more cells
+        JPanel jp = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        
+        // add components to the panel
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        jp.add(chatSP, c);
+
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        jp.add(inputSP, c);
+
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        jp.add(sendButton, c);
+
+        // replace the old panel in the frame
+        jf.setTitle("ChatterBox: " + serverAddr);
+        // not sure how to remove the old panel instead of replacing
+        jf.setContentPane(jp); 
+        jf.pack();
+        jf.getContentPane().invalidate();
+        jf.getContentPane().validate();
     }
 
     public static void main(String[] args) {
