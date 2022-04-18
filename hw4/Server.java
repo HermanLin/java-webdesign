@@ -4,9 +4,12 @@ import java.util.*;
 
 public class Server {
 
+    static final int DEFAULT_PORT = 5190;
+
+
     public static void main(String[] args) {
         try {
-            ServerSocket ss = new ServerSocket(5190);
+            ServerSocket ss = new ServerSocket(DEFAULT_PORT);
 
             while(true) {
                 Socket clientSock = ss.accept();
