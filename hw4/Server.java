@@ -24,22 +24,24 @@ public class Server {
 class Connection extends Thread {
 
     Socket clientSock;
+    String clientName;
 
     Connection(Socket newClientSock) {
         clientSock = newClientSock;
     }
-
 
     public void run() {
         try {
             Scanner sin = new Scanner(clientSock.getInputStream());
             PrintStream sout = new PrintStream(clientSock.getOutputStream());
     
-            System.out.println("Connection Made");
-            String line = sin.nextLine();
+            clientName = sin.nextLine().strip();
+            System.out.println("Connection Made with " + clientName);
 
+            String line = sin.nextLine();
             while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
-                sout.println(line);
+                //sout.println(line);
+                System.out.println(line);
                 line = sin.nextLine();
             }
 

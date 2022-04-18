@@ -84,7 +84,8 @@ public class ChatterBox {
         the ChatterBox program
     */
     private void startChatterBox(JFrame jf) {
-        
+        connection = new Client(serverAddr);
+        connection.write(username + "\r\n");
         
         chatWindow(jf);
     }
@@ -107,7 +108,8 @@ public class ChatterBox {
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String text = textInput.getText();
-                textChat.append(username + ": " + text + "\n");
+                //textChat.append(username + ": " + text + "\n");
+                connection.write(text + "\r\n");
                 textInput.setText("");
             }
         });
