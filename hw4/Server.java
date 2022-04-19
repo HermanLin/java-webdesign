@@ -6,49 +6,95 @@ public class Server {
 
     static final int DEFAULT_PORT = 5190;
     // dynamic array allows for n clients
-    private ArrayList<Connection> clients;
+    private static ArrayList<Connection> clients;
 
     public static void main(String[] args) {
         clients = new ArrayList<Connection>();
 
+        // start thread to manage live connections;
+        Manager manager = new Manager(clients);
+        manager.start();
+        
         try {
             ServerSocket ss = new ServerSocket(DEFAULT_PORT);
 
             while(true) {
                 Socket clientSock = ss.accept();
-                Connection clientConn = new Connection(clientSock);
-                //clients.add(clientConn);
+                Connection clientConn = new Connection(clientSock, clients);
                 clientConn.start();
+                clients.add(clientConn);
             }
         } catch (IOException e) {
             System.out.println("Could not listen on port 5190");
         }
-
-        // start thread for accepting new Client connections
     }
 }
 
-class Connection {
+class Manager extends Thread {
 
-    Socket clientSock;
-    String clientName;
+    ArrayList<Connection> clients;
 
-    Connection(Socket newClientSock) {
-        clientSock = newClientSock;
+    Manager(ArrayList<Connection> clientList) {
+        clients = clientList;
     }
 
     public void run() {
+        while(true) {
+            ArrayList<Connection> newClientList = new ArrayList<Connection>();
+            for (Connection c : clients) {
+                if (c.isAlive()) { newClientList.add(c); }
+            }
+            clients = newClientList;
+        }
+    }
+}
+
+class Connection extends Thread {
+
+    Socket clientSock;
+    String clientName;
+    Scanner sin;
+    PrintStream sout;
+    ArrayList<Connection> clients;
+
+    Connection(Socket newClientSock,
+               ArrayList<Connection> clientList) {
         try {
-            Scanner sin = new Scanner(clientSock.getInputStream());
-            PrintStream sout = new PrintStream(clientSock.getOutputStream());
+            clientSock = newClientSock;
+            sin = new Scanner(clientSock.getInputStream());
+            sout = new PrintStream(clientSock.getOutputStream());
+
+            clients = clientList;
+        } catch (IOException e) {
+            // TODO: implement error handling
+        }
+    }
+
+    public String read() {
+        return sin.nextLine();
+    }
+
+    public Boolean write(String message) {
+        sout.println(clientName + ": " + message);
+        return true;
+    }
+
+    private void writeToAll(String message) {
+        for (Connection c : clients) {
+            System.out.println("Writing to " + c.clientName + ": " + message);
+            c.write(message);
+        }
+    }
     
+    public void run() {
+        try {
             clientName = sin.nextLine().strip();
             System.out.println("Connection Made with " + clientName);
 
             String line = sin.nextLine();
             while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
                 System.out.println(clientName + ": " + line);
-                sout.println(line);
+                writeToAll(line);
                 line = sin.nextLine();
             }
 

@@ -13,7 +13,6 @@ public class Client {
     Scanner sin;
     OutputStream sout;
 
-    Client() {}
     Client(String address, String username) {
         try {
             sock = new Socket(address, DEFAULT_PORT);

@@ -156,7 +156,7 @@ public class ChatterBox {
                 String message;
                 while (true) {
                     message = connection.read();
-                    textChat.append(message);
+                    textChat.append(message + "\n");
                 }
             }
         });
