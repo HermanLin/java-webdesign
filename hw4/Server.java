@@ -70,19 +70,15 @@ class Connection extends Thread {
         }
     }
 
-    public String read() {
-        return sin.nextLine();
-    }
-
     public Boolean write(String message) {
-        sout.println(clientName + ": " + message);
+        sout.println(message);
         return true;
     }
 
     private void writeToAll(String message) {
         for (Connection c : clients) {
             System.out.println("Writing to " + c.clientName + ": " + message);
-            c.write(message);
+            c.write(clientName + ": " + message);
         }
     }
     
@@ -91,13 +87,15 @@ class Connection extends Thread {
             clientName = sin.nextLine().strip();
             System.out.println("Connection Made with " + clientName);
 
-            String line = sin.nextLine();
-            while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
-                System.out.println(clientName + ": " + line);
-                writeToAll(line);
-                try { line = sin.nextLine(); }
-                catch (Exception e) { break; }
-            }
+            try { 
+                String line = sin.nextLine(); 
+                while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
+                    System.out.println(clientName + ": " + line);
+                    writeToAll(line);
+                    try { line = sin.nextLine(); }
+                    catch (Exception e) { break; }
+                }
+            } catch (Exception e) {}
 
             clientSock.close();
         } catch (IOException e) {}

@@ -27,6 +27,7 @@ public class Client {
 
     public String read() {
         String message = sin.nextLine();
+        System.out.println("Message received: " + message);
         return message;
     }
 
