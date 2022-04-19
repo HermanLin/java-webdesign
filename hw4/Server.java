@@ -47,14 +47,9 @@ class Connection extends Thread {
         }
     }
 
-    public Boolean write(String message) {
-        sout.println(message);
-        return true;
-    }
-
     private void writeToAll(String message) {
         for (Connection c : clients) {
-            c.write(clientName + ": " + message);
+            c.sout.println(clientName + ": " + message);
         }
     }
     
