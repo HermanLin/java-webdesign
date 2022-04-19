@@ -7,16 +7,15 @@ import java.net.*;
 
 public class ChatterBox {
 
-    static final int DEFAULT_PORT = 5190;
-
+    static final int DEFAULT_PORT = 5190; // change to preferred port
     static ChatterBox cb;
+    static final String IP_ADDRESS =  // used for regex checking
+        "[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}";
+
     JTextArea textChat, textInput;
     JButton sendButton;
     String serverAddr, username;
     Client connection;
-
-    static final String IP_ADDRESS = 
-        "[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}";
 
     ChatterBox() {
         // default settings for the window
@@ -33,7 +32,7 @@ public class ChatterBox {
         Prompt user for which server to connect to and a username
     */
     private void serverPrompt (JFrame jf) {
-        // create components 
+        // create components for the prompt
         JTextField addrInput = new JTextField(20);
         JTextField nameInput = new JTextField(20);
 
@@ -92,7 +91,11 @@ public class ChatterBox {
         jf.pack();
     }
 
-
+    /*
+        Verify that the supplied server address is currently
+        online. If the server is available, create a new
+        Client and return true. Otherwise, return false.
+    */
     private Boolean verifyServer(String serverAddr) {
         try {
             Socket sock = new Socket(serverAddr, DEFAULT_PORT);
@@ -128,7 +131,7 @@ public class ChatterBox {
                     jf.dispose();
                     System.exit(0);
                 }
-                
+
                 textInput.setText("");
             }
         });
@@ -156,10 +159,12 @@ public class ChatterBox {
         jf.getContentPane().invalidate();
         jf.getContentPane().validate();
 
+        // create and start a thread to continually update the chat
         Thread update = new Thread(new Runnable() {
             public void run() {
                 String message = "";
                 while (true) {
+                    // read from anywhere (Client or Server)
                     try { message = connection.read(); }
                     catch (Exception e) { break; }
                     textChat.append(message + "\n");
