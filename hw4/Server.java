@@ -95,7 +95,8 @@ class Connection extends Thread {
             while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
                 System.out.println(clientName + ": " + line);
                 writeToAll(line);
-                line = sin.nextLine();
+                try { line = sin.nextLine(); }
+                catch (Exception e) { break; }
             }
 
             clientSock.close();
