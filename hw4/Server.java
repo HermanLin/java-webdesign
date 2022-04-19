@@ -6,12 +6,13 @@ public class Server {
 
     static final int DEFAULT_PORT = 5190;
     // dynamic array allows for n clients
-    //private ArrayList<Connection> clients;
+    private ArrayList<Connection> clients;
 
     public static void main(String[] args) {
+        clients = new ArrayList<Connection>();
+
         try {
             ServerSocket ss = new ServerSocket(DEFAULT_PORT);
-            //clients = new ArrayList<Connection>();
 
             while(true) {
                 Socket clientSock = ss.accept();
@@ -22,10 +23,12 @@ public class Server {
         } catch (IOException e) {
             System.out.println("Could not listen on port 5190");
         }
+
+        // start thread for accepting new Client connections
     }
 }
 
-class Connection extends Thread {
+class Connection {
 
     Socket clientSock;
     String clientName;
