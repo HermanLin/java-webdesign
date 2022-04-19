@@ -121,8 +121,14 @@ public class ChatterBox {
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String text = textInput.getText();
-                //textChat.append(username + ": " + text + "\n");
+                 
+                // check if the message is a "LOGOUT" message
                 connection.write(text + "\r\n");
+                if (text.strip().compareToIgnoreCase("LOGOUT") == 0) {
+                    jf.dispose();
+                    System.exit(0);
+                }
+                
                 textInput.setText("");
             }
         });
