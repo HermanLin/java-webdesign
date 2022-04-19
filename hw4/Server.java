@@ -14,6 +14,8 @@ public class Server {
         try {
             ServerSocket ss = new ServerSocket(DEFAULT_PORT);
 
+            // accept all valid connections to this server
+            // and add them to the list of all clients
             while(true) {
                 Socket clientSock = ss.accept();
                 Connection clientConn = new Connection(clientSock, clients);
@@ -44,15 +46,23 @@ class Connection extends Thread {
             clients = clientList;
         } catch (IOException e) {
             // TODO: implement error handling
+            // Error when getting the input/output stream only really
+            // happens when something happens to the socket (i.e. the
+            // Client is being closed). Ignored for this assignment.
         }
     }
 
+    /*
+        Write a message received from the Client to all clients on
+        the server
+    */
     private void writeToAll(String message) {
         for (Connection c : clients) {
             c.sout.println(clientName + ": " + message);
         }
     }
     
+    @Override
     public void run() {
         try {
             clientName = sin.nextLine().strip();
@@ -65,7 +75,7 @@ class Connection extends Thread {
                     catch (Exception e) { break; }
                 }
             } catch (Exception e) {
-            } finally { 
+            } finally { // if the socket closes or Client sends "LOGOUT"
                 clientSock.close(); 
                 clients.remove(this);
             }
