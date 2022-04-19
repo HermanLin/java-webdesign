@@ -138,19 +138,6 @@ public class ChatterBox {
         jf.getContentPane().invalidate();
         jf.getContentPane().validate();
 
-        /*
-        // schedule a job for the event dispatching thread
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() { 
-                String message;
-                while (true) {
-                    message = connection.read();
-                    textChat.append(message);
-                }
-            }
-        });
-        */
-
         Thread update = new Thread(new Runnable() {
             public void run() {
                 String message;
