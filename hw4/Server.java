@@ -54,7 +54,6 @@ class Connection extends Thread {
 
     private void writeToAll(String message) {
         for (Connection c : clients) {
-            System.out.println("Writing to " + c.clientName + ": " + message);
             c.write(clientName + ": " + message);
         }
     }
@@ -62,12 +61,10 @@ class Connection extends Thread {
     public void run() {
         try {
             clientName = sin.nextLine().strip();
-            System.out.println("Connection Made with " + clientName);
 
             try { 
                 String line = sin.nextLine(); 
                 while (line.strip().compareToIgnoreCase("LOGOUT") != 0) {
-                    System.out.println(clientName + ": " + line);
                     writeToAll(line);
                     try { line = sin.nextLine(); }
                     catch (Exception e) { break; }
