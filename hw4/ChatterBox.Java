@@ -21,7 +21,8 @@ public class ChatterBox {
     static final String IP_ADDRESS =  // used for regex checking
         "[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}\\.[0-9]{1,4}";
 
-    JTextArea textChat, textInput;
+    JTextArea textChat;
+    JTextField textInput;
     JButton sendButton;
     String serverAddr, username;
     Client connection;
@@ -125,23 +126,21 @@ public class ChatterBox {
         textChat.setLineWrap(true);
         JScrollPane chatSP = new JScrollPane(textChat);
 
-        textInput = new JTextArea(3, 30);
-        textInput.setLineWrap(true);
-        JScrollPane inputSP = new JScrollPane(textInput);
+        textInput = new JTextField(30);
+        textInput.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    checkAndSendMessage(jf);
+                }
+            }
+        });
 
         sendButton = new JButton("Send");
         sendButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                String text = textInput.getText();
-                 
-                // check if the message is a "LOGOUT" message
-                connection.write(text + "\r\n");
-                if (text.strip().compareToIgnoreCase("LOGOUT") == 0) {
-                    jf.dispose();
-                    System.exit(0);
-                }
-
-                textInput.setText("");
+                checkAndSendMessage(jf);
             }
         });
 
@@ -156,7 +155,8 @@ public class ChatterBox {
         jp.add(chatSP, c);
 
         c.gridwidth = GridBagConstraints.RELATIVE;
-        jp.add(inputSP, c);
+        //jp.add(inputSP, c);
+        jp.add(textInput, c);
 
         c.gridwidth = GridBagConstraints.REMAINDER;
         jp.add(sendButton, c);
@@ -181,6 +181,19 @@ public class ChatterBox {
             }
         });
         update.start();
+    }
+
+    private void checkAndSendMessage(JFrame jf) {
+        String text = textInput.getText();
+                 
+        // check if the message is a "LOGOUT" message
+        connection.write(text + "\r\n");
+        if (text.strip().compareToIgnoreCase("LOGOUT") == 0) {
+            jf.dispose();
+            System.exit(0);
+        }
+
+        textInput.setText("");
     }
 
     public static void main(String[] args) {
