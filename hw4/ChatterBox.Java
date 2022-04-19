@@ -130,9 +130,8 @@ public class ChatterBox {
         c.gridwidth = GridBagConstraints.REMAINDER;
         jp.add(sendButton, c);
 
-        // replace the old panel in the frame
         jf.setTitle("ChatterBox: " + serverAddr);
-        // not sure how to remove the old panel instead of replacing
+        // replace the old panel in the frame
         jf.setContentPane(jp); 
         jf.pack();
         jf.getContentPane().invalidate();
