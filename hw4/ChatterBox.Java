@@ -19,6 +19,7 @@ public class ChatterBox {
         JFrame jf = new JFrame("ChatterBox");
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jf.setResizable(false);
+        jf.setLocationRelativeTo(null);
         jf.setVisible(true);
 
         serverPrompt(jf);
@@ -84,8 +85,7 @@ public class ChatterBox {
         the ChatterBox program
     */
     private void startChatterBox(JFrame jf) {
-        connection = new Client(serverAddr);
-        connection.write(username + "\r\n");
+        connection = new Client(serverAddr, username);
         
         chatWindow(jf);
     }
@@ -95,7 +95,7 @@ public class ChatterBox {
     */
     private void chatWindow(JFrame jf) {
         // create the components for the ChatterBox
-        textChat = new JTextArea(30, 30);
+        textChat = new JTextArea(20, 30);
         textChat.setEditable(false);
         textChat.setLineWrap(true);
         JScrollPane chatSP = new JScrollPane(textChat);
@@ -137,6 +137,30 @@ public class ChatterBox {
         jf.pack();
         jf.getContentPane().invalidate();
         jf.getContentPane().validate();
+
+        /*
+        // schedule a job for the event dispatching thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() { 
+                String message;
+                while (true) {
+                    message = connection.read();
+                    textChat.append(message);
+                }
+            }
+        });
+        */
+
+        Thread reader = new Thread(new Runnable() {
+            public void run() {
+                String message;
+                while (true) {
+                    message = connection.read();
+                    textChat.append(message);
+                }
+            }
+        });
+        reader.start();
     }
 
     public static void main(String[] args) {
