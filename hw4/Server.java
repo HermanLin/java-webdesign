@@ -11,10 +11,6 @@ public class Server {
     public static void main(String[] args) {
         clients = new ArrayList<Connection>();
 
-        // start thread to manage live connections;
-        Manager manager = new Manager(clients);
-        manager.start();
-        
         try {
             ServerSocket ss = new ServerSocket(DEFAULT_PORT);
 
@@ -26,25 +22,6 @@ public class Server {
             }
         } catch (IOException e) {
             System.out.println("Could not listen on port 5190");
-        }
-    }
-}
-
-class Manager extends Thread {
-
-    ArrayList<Connection> clients;
-
-    Manager(ArrayList<Connection> clientList) {
-        clients = clientList;
-    }
-
-    public void run() {
-        while(true) {
-            ArrayList<Connection> newClientList = new ArrayList<Connection>();
-            for (Connection c : clients) {
-                if (c.isAlive()) { newClientList.add(c); }
-            }
-            clients = newClientList;
         }
     }
 }
@@ -95,9 +72,11 @@ class Connection extends Thread {
                     try { line = sin.nextLine(); }
                     catch (Exception e) { break; }
                 }
-            } catch (Exception e) {}
-
-            clientSock.close();
+            } catch (Exception e) {
+            } finally { 
+                clientSock.close(); 
+                clients.remove(this);
+            }
         } catch (IOException e) {}
     }
 }
