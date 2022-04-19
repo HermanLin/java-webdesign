@@ -151,7 +151,7 @@ public class ChatterBox {
         });
         */
 
-        Thread reader = new Thread(new Runnable() {
+        Thread update = new Thread(new Runnable() {
             public void run() {
                 String message;
                 while (true) {
@@ -160,7 +160,7 @@ public class ChatterBox {
                 }
             }
         });
-        reader.start();
+        update.start();
     }
 
     public static void main(String[] args) {
