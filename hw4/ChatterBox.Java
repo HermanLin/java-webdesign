@@ -2,8 +2,12 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.regex.*;
+import java.io.*;
+import java.net.*;
 
 public class ChatterBox {
+
+    static final int DEFAULT_PORT = 5190;
 
     static ChatterBox cb;
     JTextArea textChat, textInput;
@@ -40,11 +44,19 @@ public class ChatterBox {
                 username = nameInput.getText().strip();
 
                 if (Pattern.matches(IP_ADDRESS, serverAddr)) {
-                    startChatterBox(jf);
+                    Boolean connected = verifyServer(serverAddr);
+                    if (connected) { startChatterBox(jf); }
+                    else {
+                        JOptionPane.showMessageDialog(
+                            null,
+                            "Unable to connect to server: " + serverAddr,
+                            "ChatterBox Error",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(
                         null,
-                        "Please use a valid server address",
+                        "Please use a valid server address format",
                         "ChatterBox Error",
                         JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -80,20 +92,21 @@ public class ChatterBox {
         jf.pack();
     }
 
-    /*
-        Initialize the Client object and start
-        the ChatterBox program
-    */
-    private void startChatterBox(JFrame jf) {
-        connection = new Client(serverAddr, username);
-        
-        chatWindow(jf);
+
+    private Boolean verifyServer(String serverAddr) {
+        try {
+            Socket sock = new Socket(serverAddr, DEFAULT_PORT);
+            connection = new Client(sock, username);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     /*
         Create the ChatterBox interface for user IO
     */
-    private void chatWindow(JFrame jf) {
+    private void startChatterBox(JFrame jf) {
         // create the components for the ChatterBox
         textChat = new JTextArea(20, 30);
         textChat.setEditable(false);
@@ -139,9 +152,10 @@ public class ChatterBox {
 
         Thread update = new Thread(new Runnable() {
             public void run() {
-                String message;
+                String message = "";
                 while (true) {
-                    message = connection.read();
+                    try { message = connection.read(); }
+                    catch (Exception e) { break; }
                     textChat.append(message + "\n");
                 }
             }

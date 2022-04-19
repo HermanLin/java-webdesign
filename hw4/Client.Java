@@ -6,16 +6,13 @@ import java.nio.channels.SocketChannel;
 
 public class Client {
 
-    static final int DEFAULT_PORT = 5190;
     Socket sock;
-    SocketChannel socketChannel;
-    SocketAddress socketAddr;
     Scanner sin;
     OutputStream sout;
 
-    Client(String address, String username) {
+    Client(Socket newSocket, String username) {
         try {
-            sock = new Socket(address, DEFAULT_PORT);
+            sock = newSocket;
             sin = new Scanner(sock.getInputStream()); 
             sout = sock.getOutputStream();
             
@@ -26,7 +23,9 @@ public class Client {
     }
 
     public String read() {
-        String message = sin.nextLine();
+        String message = "";
+        try { message = sin.nextLine(); }
+        catch (Exception e) {}
         return message;
     }
 
